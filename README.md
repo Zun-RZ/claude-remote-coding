@@ -13,7 +13,7 @@ A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that opens â
 ```
 /plugin marketplace add Zun-RZ/claude-remote-coding
 /plugin install remote-tabs@claude-remote-coding
-/plugin install selection-is-all-you-need@claude-remote-coding   # optional: mobile pushes
+/plugin install selection-is-all-you-need@claude-remote-coding
 ```
 
 That's it â€” no per-project setup, no files copied into your repo.
