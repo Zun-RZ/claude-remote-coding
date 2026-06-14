@@ -1,6 +1,6 @@
 * text=auto
 *.sh text eol=lf
-bin/open-remote-tab text eol=lf
-bin/close-remote-tab text eol=lf
+plugins/remote-tabs/bin/open-remote-tab text eol=lf
+plugins/remote-tabs/bin/close-remote-tab text eol=lf
 *.ps1 text eol=crlf
 *.png binary
