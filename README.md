@@ -3,7 +3,7 @@
 <p align="center"><strong><em>DO YOU GUYS NOT HAVE PHONES?</em></strong></p>
 
 <p align="center">
-  <img src="docs/images/do-you-guys-not-have-phones.png" alt="DO YOU GUYS NOT HAVE PHONES?" width="340">
+  <img src="docs/images/do-you-guys-not-have-phones.png" alt="DO YOU GUYS NOT HAVE PHONES?" width="100%">
 </p>
 
 A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that opens — and closes — background **Remote Control** sessions by voice or text, with no stolen window focus, so you can drive them from the Claude mobile app / claude.ai/code. Just tell your agent *"open a new session"* and a fresh, independent session spins up in the background (a minimized terminal on Windows, or a detached `tmux` session on Linux/WSL) and shows up in your mobile/web session list, ready to drive from your phone.
