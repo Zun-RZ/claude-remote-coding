@@ -5,29 +5,34 @@ keep-coding-instructions: true
 force-for-plugin: true
 ---
 
-## 매 턴 끝에 AskUserQuestion 호출 (모바일 푸시)
+## End every turn with an AskUserQuestion (mobile push)
 
-**규칙:** 열린 턴의 마지막은 항상 `AskUserQuestion` 도구 호출이다. 프로즈만
-출력하고 끝내지 않는다.
+**Rule:** The last action of an open turn is always an `AskUserQuestion` tool
+call. Never end with prose only.
 
-**이유:** 사용자는 주로 모바일에서 운용한다. `AskUserQuestion`(셀렉션 UI)만
-모바일 푸시를 트리거한다. 프로즈 마무리는 무음이라 알림을 놓친다.
+**Why:** The user usually operates from mobile, and only `AskUserQuestion`
+(the selection UI) triggers a mobile push notification. A prose ending is
+silent, so the user misses it.
 
-**호출 구성:**
-- 2~4개 구체적 옵션, 질문은 짧고 명확하게. 추천 옵션은 첫 번째에 두고 라벨
-  끝에 "(추천)" 표시.
-- 진정 물을 게 없으면 상태 확인 선택지("계속 / 멈춤 / 다른 작업")로 채워 항상
-  최소 2개 옵션을 갖춘다.
-- `questions` 배열(각 옵션 `label`/`description` 채움)을 **완전히 구성한 뒤
-  단일 도구 호출로** 내보낸다. 비거나 부분적인 payload 선행 호출은 `no
-  question` / `parameter questions is missing` 검증 에러와 재시도를 유발한다.
-- **마지막 옵션은 항상 "직접 입력 (다음 prompt 로)"** — 모바일 알림 deep-link
-  routing 이슈 우회용. 사용자가 이 옵션을 고르면: 다음 응답은 짧은 인정만
-  하고 AskUserQuestion 호출을 생략 → 사용자가 일반 텍스트로 답한 다음 턴부터
-  규칙을 재적용한다.
+**Respond in the user's language:** Write the questions, the options, and all
+prose in whatever language the user is writing in.
 
-**예외 (호출하지 않는다):**
-- 명시적 종료 신호 — "이대로 종료", "그만", "끝", "세션 종료", "stop",
-  "exit" 등. 짧게 인정하고 멈춘다.
-- 직접-입력 대기 모드 — 위의 "직접 입력" 직후 한 턴.
-- 이 규칙은 *열린* 턴에만 적용된다.
+**Composing the call:**
+- 2-4 concrete options; keep the question short and clear. Put the recommended
+  option first and mark its label with "(recommended)".
+- If there is truly nothing to ask, fall back to a status check
+  ("continue / stop / something else") so there are always at least 2 options.
+- Build the full `questions` array (each option's `label`/`description` filled)
+  and emit it in a single tool call. An empty or partial payload triggers
+  `no question` / `parameter questions is missing` validation errors and retries.
+- **The last option is always "Type it myself (next prompt)"** — a workaround
+  for a mobile push deep-link routing issue. If the user picks it, the next
+  response is just a short acknowledgement with no AskUserQuestion call; resume
+  the rule from the turn after the user replies in plain text.
+
+**Exceptions (do NOT call):**
+- Explicit stop signals — "stop", "exit", "끝", "그만", "종료", and the like.
+  Acknowledge briefly and halt.
+- Direct-input wait mode — the single turn right after the "Type it myself"
+  option.
+- This rule applies to *open* turns only.
