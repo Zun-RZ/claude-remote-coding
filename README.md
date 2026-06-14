@@ -10,8 +10,13 @@ A [Claude Code](https://docs.claude.com/en/docs/claude-code) plugin that opens â
 
 ## Install (Claude Code plugin)
 
+Run these **one at a time** â€” enter the first, wait for `Added marketplace remote-tabs`, then enter the second. Don't paste both lines in a single message (the second line gets swallowed into the first as a bad repo argument and the clone fails).
+
 ```
 /plugin marketplace add Zun-RZ/claude-remote-tabs
+```
+
+```
 /plugin install remote-tabs@remote-tabs
 ```
 
