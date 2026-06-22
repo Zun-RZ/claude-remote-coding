@@ -80,9 +80,10 @@ started inside a keystroke-injectable container with a background **inbox**
 watcher, so appending a line to the inbox **types it into the real TUI** and the
 built-in actually fires.
 
-- From your phone, just tell the session to run **`bridge-send /clear`** — or the
-  short alias **`bg.s /clear`** (easier to type on mobile) — a tiny helper that
-  queues the line into the inbox so the bridge types it into the TUI.
+- From your phone, just send **`/clear`** (or `bg.s /clear`) to the session — the
+  bundled **`send-key`** skill recognizes it and queues it into the inbox so the
+  bridge types it into the TUI. (`send-key` runs the `bridge-send` / `bg.s` helper,
+  a one-liner that appends the line to the inbox.)
   The model can't `/clear` itself, but `bridge-send` makes the bridge inject it.
   Works for `bridge-send /compact`, `bridge-send !git status`,
   `bridge-send "a plain prompt"` too; `/`/`!` lines get an ESC first to clear any
@@ -141,6 +142,7 @@ A remote-control session opened this way is **not** persisted to local storage �
 |---|---|
 | `open-remote-tab` | Start one background remote-control session for the current project |
 | `close-remote-tab` | End the current session (after one confirmation, or instantly with the `#@stop#@` keyword) — keeps zombie sessions from piling up |
+| `send-key` | Inside a session, fire a TUI command (`/clear`, `/compact`, `!`bash, or `bg.s …`) by injecting it through the keystroke bridge |
 | `setup-remote-tabs` | One-time opt-in: wire `.claude/settings.json` so sessions run without prompts |
 
 ## How it works
