@@ -30,11 +30,15 @@ background. Appending a line to the inbox **types it into the real TUI**, so
 built-in commands the model/hooks can't trigger — `/clear`, `/compact`,
 `/model`, plus `!`bash and plain prompts — actually fire.
 
-- The inbox path is printed on start (`inbox: …`) and exported into the session
-  as `CLAUDE_BRIDGE_INBOX`. From inside the session (e.g. driven from the phone),
-  the model can trigger a built-in by running bash:
-  `echo /clear >> "$CLAUDE_BRIDGE_INBOX"` — the model can't run `/clear` itself,
-  but writing to the inbox makes the bridge inject it.
+- Easiest from inside the session (e.g. driven from the phone): run
+  **`bridge-send /clear`** (a Bash-tool command). It appends the line to the
+  inbox so the bridge types it into the TUI — the model can't run `/clear`
+  itself, but `bridge-send` makes the bridge inject it. Also `bridge-send /compact`,
+  `bridge-send !git status`, `bridge-send "a plain prompt"`.
+- Under the hood the inbox path is printed on start (`inbox: …`) and exported as
+  `CLAUDE_BRIDGE_INBOX`; `bridge-send` just appends to it (equivalent to
+  `echo /clear >> "$CLAUDE_BRIDGE_INBOX"`). Any external writer (SSH, synced file)
+  works too.
 - `/`- and `!`-prefixed lines get an ESC first to dismiss any open modal
   (turn-end AskUserQuestion, permission, folder-trust) so the key lands at the
   command prompt; plain prompts are injected as-is.
