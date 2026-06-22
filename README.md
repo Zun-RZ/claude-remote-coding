@@ -101,6 +101,11 @@ built-in actually fires.
   ```
   (creates a managed venv at `%LOCALAPPDATA%\claude-remote-tabs\bridge-venv`; or
   set `REMOTE_TABS_PYTHON` to any python that has pywinpty.)
+- **Type locally too (Windows):** you can also type directly into the bridge
+  session's window when it's focused — keystrokes forward to the TUI. It reads
+  only that console's own input, so it captures **nothing while the window is
+  unfocused** (no global keyboard hook, no `SendInput` — never steals input from
+  other apps).
 
 ### Closing a session
 

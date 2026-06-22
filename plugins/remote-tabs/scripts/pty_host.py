@@ -79,6 +79,47 @@ def pump_output(proc):
             sys.stdout.flush()
 
 
+# 화살표 등 특수키(getwch 프리픽스 \x00/\xe0 다음 코드) → ANSI 시퀀스
+_SPECIAL_KEYS = {
+    "H": "\x1b[A", "P": "\x1b[B", "M": "\x1b[C", "K": "\x1b[D",   # ↑ ↓ → ←
+    "G": "\x1b[H", "O": "\x1b[F", "S": "\x1b[3~", "R": "\x1b[2~",  # Home End Del Ins
+    "I": "\x1b[5~", "Q": "\x1b[6~",                                 # PgUp PgDn
+}
+
+
+def forward_console_input(proc):
+    """이 콘솔 창에 '포커스가 있을 때 친' 키만 PTY로 전달한다.
+    콘솔 입력 버퍼는 그 창이 키보드 포커스를 가질 때만 채워지므로, 창이 비활성이면
+    getwch가 블록될 뿐 전역 입력을 가로채지 않는다 (SendInput/전역 키보드 훅 미사용 —
+    엉뚱한 창에 입력될 위험 없음). 콘솔이 아니면(백그라운드/리다이렉트) 아무것도 안 한다."""
+    try:
+        import msvcrt
+    except ImportError:
+        return
+    try:
+        if not sys.stdin.isatty():
+            return
+    except Exception:
+        return
+    while proc.isalive():
+        try:
+            ch = msvcrt.getwch()  # 에코·라인버퍼 없는 콘솔 단일 키 읽기 (블로킹)
+        except Exception:
+            break
+        if ch in ("\x00", "\xe0"):        # 특수키 프리픽스 → 다음 코드로 시퀀스 결정
+            try:
+                code = msvcrt.getwch()
+            except Exception:
+                break
+            seq = _SPECIAL_KEYS.get(code)
+            if seq:
+                proc.write(seq)
+            continue
+        if ch == "\x08":                  # Backspace → DEL(0x7f)
+            ch = "\x7f"
+        proc.write(ch)
+
+
 def main(argv):
     if len(argv) < 2:
         print("usage: python pty_host.py <inbox-file> [--] [command...]", file=sys.stderr)
@@ -103,6 +144,8 @@ def main(argv):
 
     reader = threading.Thread(target=pump_output, args=(proc,), daemon=True)
     reader.start()
+    # 로컬 창에 포커스가 있을 때 친 키도 PTY로 전달 (inbox 주입과 공존). 콘솔이 아니면 no-op.
+    threading.Thread(target=forward_console_input, args=(proc,), daemon=True).start()
 
     try:
         while proc.isalive():
