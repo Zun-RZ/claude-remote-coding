@@ -61,8 +61,13 @@ if ($py -and (Test-Path $hostPy)) {
     # Keystroke-bridge mode: pty_host.py spawns `claude --remote-control` in a ConPTY
     # it owns and injects inbox lines. It also sets CLAUDE_BRIDGE_INBOX in the session.
     $pyExe = $py[0]; $pyPre = $py[1]
-    if ($env:REMOTE_TABS_WINDOW) {
-        # Window mode (REMOTE_TABS_WINDOW set): run pty_host in a MINIMIZED, visible
+    # REMOTE_TABS_WINDOW toggles visible-window mode. Treat unset/empty and
+    # 0/false/no/off (any case) as OFF — PowerShell counts the string "0" as
+    # truthy, so a bare `if ($env:...)` would wrongly enable it on =0.
+    $wantWindow = $env:REMOTE_TABS_WINDOW -and `
+        ($env:REMOTE_TABS_WINDOW -notmatch '^(0|false|no|off)$')
+    if ($wantWindow) {
+        # Window mode (REMOTE_TABS_WINDOW on): run pty_host in a MINIMIZED, visible
         # console so its stdin is a real console — that re-enables pty_host's local
         # input forwarding (type into the taskbar window, Korean/IME included). The
         # self-gating lives in pty_host (enable_console_raw); here we just give it a
