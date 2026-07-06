@@ -79,9 +79,7 @@ if ($py -and (Test-Path $hostPy)) {
         $p = Start-Process $pyExe -ArgumentList $argStr `
             -WorkingDirectory $root -WindowStyle Minimized -PassThru
         [System.IO.File]::WriteAllText($pidFile, [string]$p.Id)
-        Write-Output "remote session started with keystroke bridge (pid $($p.Id), window open)"
-        Write-Output "inbox: $inbox"
-        Write-Output "trigger built-ins, e.g.:  Add-Content '$inbox' '/clear'"
+        Write-Output "remote session started (pid $($p.Id), window open)"
     } else {
         # Default (no window): launch pty_host so NO console window ever flashes AND the
         # launcher never blocks. pty_host's local-input forwarding stays inert here — its
@@ -114,9 +112,7 @@ if ($py -and (Test-Path $hostPy)) {
         $childPid = $hp.StandardOutput.ReadLine()
         $hp.WaitForExit()
         [System.IO.File]::WriteAllText($pidFile, [string]$childPid)
-        Write-Output "remote session started with keystroke bridge (pid $childPid, no window)"
-        Write-Output "inbox: $inbox"
-        Write-Output "trigger built-ins, e.g.:  Add-Content '$inbox' '/clear'"
+        Write-Output "remote session started (pid $childPid, no window)"
     }
 } else {
     # Plain fallback (no pywinpty): original minimized launcher, no keystroke injection.
@@ -125,6 +121,6 @@ if ($py -and (Test-Path $hostPy)) {
         -WorkingDirectory $root -WindowStyle Minimized -PassThru
     [System.IO.File]::WriteAllText($pidFile, [string]$p.Id)
     Write-Output "remote session started (pid $($p.Id), minimized terminal)"
-    Write-Output "note: keystroke bridge disabled (no pywinpty found). Enable /clear etc. with:"
+    Write-Output "note: headless no-window mode disabled (no pywinpty found); using a minimized terminal. Enable it with:"
     Write-Output "  powershell -File `"$(Join-Path $PSScriptRoot 'setup-bridge.ps1')`"   (creates a managed venv; no system Python changes)"
 }

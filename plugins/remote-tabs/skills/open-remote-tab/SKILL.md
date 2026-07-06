@@ -24,7 +24,7 @@ conversation lives only on the web.
 
 ## Window mode (type locally): `REMOTE_TABS_WINDOW`
 
-On Windows the bridge runs **with no window** by default (headless ConPTY host).
+On Windows the session runs **with no window** by default (headless ConPTY host).
 If the user asks to **open a window**, **type/drive it locally**, or **use
 Korean/IME input directly** — e.g. "창 열어서 세션 열어줘", "로컬에서 직접
 타이핑하게", "open the session in a window" — start it with the
@@ -40,28 +40,3 @@ into the `.ps1`, which opens a console window for the session. That gives
 the window and type directly. Any value other than empty / `0` / `false` / `no` /
 `off` (any case) turns it on; the plain `open-remote-tab` keeps the default
 no-window mode. (Unix/tmux has no window concept, so the var is ignored there.)
-
-## Keystroke bridge (built-in commands like /clear)
-
-The session is started inside a keystroke-injectable container (tmux on Unix; a
-pywinpty ConPTY host on Windows), with an **inbox** file watched in the
-background. Appending a line to the inbox **types it into the real TUI**, so
-built-in commands the model/hooks can't trigger — `/clear`, `/compact`,
-`/model`, plus `!`bash and plain prompts — actually fire.
-
-- Easiest from inside the session (e.g. driven from the phone): run
-  **`send-key /clear`** — or the short alias **`s.k /clear`** (easier to type
-  on mobile). It appends the line to the inbox so the bridge types it into the
-  TUI — the model can't run `/clear` itself, but this makes the bridge inject it.
-  Also `s.k /compact`, `s.k !git status`, `s.k "a plain prompt"`.
-- Under the hood the inbox path is printed on start (`inbox: …`) and exported as
-  `CLAUDE_BRIDGE_INBOX`; `send-key` just appends to it (equivalent to
-  `echo /clear >> "$CLAUDE_BRIDGE_INBOX"`). Any external writer (SSH, synced file)
-  works too.
-- `/`- and `!`-prefixed lines get an ESC first to dismiss any open modal
-  (turn-end AskUserQuestion, permission, folder-trust) so the key lands at the
-  command prompt; plain prompts are injected as-is.
-- **Windows needs pywinpty.** If it's missing, the session still starts but
-  without injection (a note is printed). Enable it once with
-  `scripts/setup-bridge.ps1` (creates a managed venv; no system Python changes),
-  or set `REMOTE_TABS_PYTHON` to any python that has pywinpty.

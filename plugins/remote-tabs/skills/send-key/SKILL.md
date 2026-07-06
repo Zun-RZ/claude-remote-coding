@@ -1,12 +1,17 @@
 ---
 name: send-key
-description: Use INSIDE a remote-control session when the user's message starts
-  with "s.k …" or "send-key …" — inject the rest of the line as a TUI command
-  into this session via the keystroke bridge (the model and hooks cannot type it
-  themselves). Triggers on e.g. "s.k /compact", "send-key /clear".
+description: DEPRECATED — the Claude mobile app now supports slash commands
+  natively, so this keystroke-bridge workaround is retired and no longer
+  auto-triggers. The mechanism is preserved (bin/send-key still writes to the
+  session inbox) for manual revival; do not invoke this skill automatically.
 ---
 
 # Fire a TUI command via the keystroke bridge
+
+> **DEPRECATED (v1.6.0).** The Claude mobile app now supports slash commands
+> natively, so you no longer need this bridge to fire `/clear`, `/compact`, etc.
+> from your phone — type them directly into the mobile composer. This skill no
+> longer auto-triggers; the mechanism below is preserved only for manual revival.
 
 The user wants a terminal/TUI command run in **this** session — most importantly a
 built-in like `/clear`, `/compact`, `/model`, `/config`. You **cannot** run those
