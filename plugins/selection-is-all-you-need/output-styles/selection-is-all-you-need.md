@@ -1,6 +1,6 @@
 ---
 name: selection-is-all-you-need
-description: End every turn with an AskUserQuestion (mobile push), except on explicit stop or wait.
+description: End every turn with an AskUserQuestion (mobile push), except on explicit stop, wait, or when no human is watching.
 keep-coding-instructions: true
 force-for-plugin: true
 ---
@@ -40,4 +40,15 @@ prose in whatever language the user is writing in.
   terminate the session; without it, just treat `#@stop#@` as a plain stop.)
 - Direct-input wait mode — the single turn right after the "Type it myself"
   option.
+- **Agent-driven sessions — no human is watching.** If another agent started this
+  session and drives it (e.g. a worker session a lead agent spawned and instructs
+  over a message bus), the push has no recipient: it fires on the human's phone
+  for a turn they did not ask for and cannot act on. End those turns with prose
+  and report back through whatever channel the driving agent reads. Two notes:
+  - Judge by *who drives this session*, not by what the task is. A human working
+    from their phone through a driving agent is still a human — if your output
+    goes to a person, the rule applies.
+  - This does not silence you. It moves the report to the channel the driver
+    actually reads. Reserve `AskUserQuestion` for decisions that are genuinely a
+    human's to make; route everything else through your driver.
 - This rule applies to *open* turns only.
