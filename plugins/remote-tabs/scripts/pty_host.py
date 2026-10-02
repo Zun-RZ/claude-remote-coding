@@ -21,7 +21,7 @@ from winpty import Backend, PtyProcess
 
 POLL_INTERVAL = 1.0  # Windows엔 inotify가 없어 단순 폴링
 ESC_SETTLE = 0.4     # 슬래시/배시 명령 주입 전 ESC를 보내고 모달이 닫힐 시간을 준다
-PASTE_SETTLE = 0.1   # bracketed paste 종료 후 제출 CR을 보내기 전 짧은 대기
+PASTE_SETTLE = 0.1   # 본문(bracketed paste 포함)을 쓴 뒤 제출 CR을 따로 보내기 전 짧은 대기
 # claude --remote-control 시작 배너에 한 줄로 찍히는 웹 세션 URL. 출력이 청크로 쪼개져
 # 와도 잡히게 pump_output이 누적 tail 버퍼에서 매칭한다. URL은 ANSI가 안 끼는 연속
 # 문자열이고 80컬럼 안에 들어가므로(≈60자) 줄바꿈으로 쪼개질 일은 없다.
@@ -98,7 +98,12 @@ def inject_new(proc, inbox, state):
                 time.sleep(PASTE_SETTLE)
                 proc.write("\r")
             else:
-                proc.write(line + "\r")  # PTY는 줄 끝 CR
+                # 본문과 제출 CR을 한 번에 쓰면 긴 줄은 붙여넣기로 읽혀 CR이 제출이 아니라
+                # 개행이 된다 — 줄이 입력창에 남고 다음 주입이 거기 덧붙는다(실측: 143자
+                # /명령·147자 평문 미제출, 짧은 줄은 제출). 본문을 먼저 쓰고 CR은 따로 보낸다.
+                proc.write(line)
+                time.sleep(PASTE_SETTLE)
+                proc.write("\r")  # PTY는 줄 끝 CR
     write_offset(state, len(lines))
 
 
