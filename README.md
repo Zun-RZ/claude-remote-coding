@@ -132,9 +132,11 @@ When you open a session in a folder Claude Code hasn't opened before, the new ba
 - **Windows:** PowerShell 5.1 or 7+, plus Git Bash (bundled with Git for Windows — the plugin's entry point runs through the Bash tool). *For the default no-window (headless) mode:* Python 3 + `pywinpty` (one-time `scripts/setup-bridge.ps1`); without it, sessions fall back to a minimized window.
 - **Linux / WSL / macOS:** `tmux`
 
-## Note: these sessions are not saved locally
+## Note: local transcripts (corrected 2026-10-17)
 
-A remote-control session opened this way is **not** persisted to local storage — the conversation lives only on claude.ai/code (web), and the local file is an empty stub (so `claude --resume` won't reopen the transcript).
+> **Correction (2026-10-17, remote-tabs 1.6.2).** This section used to say: *"A remote-control session opened this way is **not** persisted to local storage — the conversation lives only on claude.ai/code (web), and the local file is an empty stub (so `claude --resume` won't reopen the transcript)."* That was wrong.
+>
+> A `--remote-control` session is saved locally like any other session (`~/.claude/projects/<cwd>/<session-id>.jsonl`). Transcripts went missing only when the launcher ran inside a Claude Code tool shell (e.g. the open-remote-tab skill, or a script a Claude session runs): the session inherits `CLAUDE_CODE_CHILD_SESSION=1`, and Claude Code treats such a session as *nested* and turns transcript saving off. Since 1.6.2, `pty_host.py` sets `CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1` for the session it spawns, so Windows bridge sessions (headless and window mode) are saved and resumable. The Windows no-pywinpty fallback and the Linux/macOS tmux path were not changed or measured.
 
 ## Skills
 

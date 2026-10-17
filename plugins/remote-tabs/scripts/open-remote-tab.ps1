@@ -19,6 +19,12 @@
 #
 # NOTE: a `--remote-control` session is NOT saved locally — the conversation
 # lives only on claude.ai/code (web); the local .jsonl is an empty stub.
+# CORRECTION (2026-10-17, 1.6.2): the NOTE above is wrong. The session IS saved
+# locally (~/.claude/projects/<cwd>/<id>.jsonl). Transcripts went missing only
+# when this launcher ran inside a Claude Code tool shell: the inherited
+# CLAUDE_CODE_CHILD_SESSION=1 makes Claude Code treat the session as nested and
+# skip saving. pty_host.py now sets CLAUDE_CODE_FORCE_SESSION_PERSISTENCE=1
+# (measured: headless and window mode); the plain fallback below is unchanged.
 $root = (Get-Location).Path
 $proj = $root.ToLower() -replace '[:\\/]', '-'
 $uid = "$([DateTimeOffset]::UtcNow.ToUnixTimeSeconds())-$PID"

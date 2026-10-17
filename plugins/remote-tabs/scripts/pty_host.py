@@ -217,6 +217,10 @@ def main(argv):
     # 세션 안의 모델이 자기 inbox를 찾을 수 있도록 환경변수로 전달.
     env = dict(os.environ)
     env["CLAUDE_BRIDGE_INBOX"] = inbox
+    # 런처를 Claude Code 도구 셸에서 부르면 CLAUDE_CODE_CHILD_SESSION=1 이 상속되고, claude는
+    # 그 세션을 «중첩 세션»으로 보고 전사(.jsonl) 저장을 끈다 — --resume 불가. 이 호스트가 띄우는
+    # 세션은 독립 최상위 세션이므로 공식 env로 저장을 켠다(Claude Code 문서 env-vars).
+    env["CLAUDE_CODE_FORCE_SESSION_PERSISTENCE"] = "1"
 
     # ConPTY 백엔드를 명시한다. backend=None(기본)이면 네이티브가 auto-select하는데,
     # 레거시 WinPTY 백엔드로 떨어지면 winpty-agent.exe가 자기 콘솔을 새로 만든다 —

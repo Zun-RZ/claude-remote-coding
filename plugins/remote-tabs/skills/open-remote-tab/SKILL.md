@@ -20,7 +20,11 @@ remote-control Claude Code session for the current project and prints
 
 The new session appears in your claude.ai/code (web) and Claude mobile app
 session list. Note: a remote-control session is NOT saved locally — the
-conversation lives only on the web.
+conversation lives only on the web. **Correction (2026-10-17, 1.6.2):** that
+note was wrong — the session is saved locally
+(`~/.claude/projects/<cwd>/<id>.jsonl`) and can be resumed. Sessions started
+from inside a Claude Code session used to skip saving because of the inherited
+`CLAUDE_CODE_CHILD_SESSION` marker; the Windows bridge now overrides it.
 
 ## Window mode (type locally): `REMOTE_TABS_WINDOW`
 
