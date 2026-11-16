@@ -1,6 +1,6 @@
 {
   "name": "remote-tabs",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "description": "Open background Claude Code remote-control sessions by voice/text — drive them from the Claude mobile app. Windows sessions run headless (no window) via a pywinpty ConPTY host.",
   "author": { "name": "Zun-RZ" },
   "homepage": "https://github.com/Zun-RZ/claude-remote-coding",

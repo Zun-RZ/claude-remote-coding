@@ -43,6 +43,9 @@ class ReadmeContract(unittest.TestCase):
         self.assertIn("1.7.0", sec)
         # 관문 B 1/3: 범위 — tmux 브리지(bridge.sh)는 표지를 모른다는 것을 같은 절이 말한다.
         self.assertIn("bridge.sh", sec)
+        # 관문 B 2/3: 이름만이 아니라 «방향» 도 — bridge.sh 를 말하는 그 줄이 «글자 그대로 제출» 이라고 말한다
+        # («both honor the prefix» 같은 반대 문장은 위 단언을 지나간다).
+        self.assertRegex(sec, r"bridge\.sh[^\n]*literal")
 
 
 if __name__ == "__main__":
