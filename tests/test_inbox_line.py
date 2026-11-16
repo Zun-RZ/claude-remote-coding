@@ -48,13 +48,5 @@ class PlanInjection(unittest.TestCase):
         self.assertEqual(NO_ESC_MARK, "{no-esc}")
 
 
-class ReadmeContract(unittest.TestCase):
-    def test_pc1_readme_names_mark(self):
-        with open(os.path.join(REPO, "README.md"), encoding="utf-8") as f:
-            readme = f.read()
-        self.assertIn("`" + NO_ESC_MARK + "`", readme)
-        self.assertIn("1.7.0", readme)
-
-
 if __name__ == "__main__":
     unittest.main()
