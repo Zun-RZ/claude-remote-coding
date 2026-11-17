@@ -8,15 +8,23 @@ send-key 의 «UI 를 여는 명령» 가드(`/resume` · bare `/model` … → 
 (리뷰 §6 1). 실제 경로(Git Bash → send-key)처럼 sh «안» 의 driver 가 send-key 를 부르고, 줄은 환경 변수로 준다.
 대조군 ` {no-esc}/x`(앞 공백 — 표지 아님)가 inbox 에 글자 그대로 남는지가 그 전달을 잰다.
 🔴 CLAUDE_BRIDGE_INBOX 는 자식 환경에서 임시 파일로 «덮어쓴다» — 브리지 세션 안에서 돌려도 실제 inbox 에 안 쓴다.
+판의 표지 글자는 inbox_line.NO_ESC_MARK 에서 온다(관문 B 1/3 덧) — 표지 값이 바뀌면 send-key 를 고칠 때까지 PK1 이 붉다.
 """
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 
 REPO = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SEND_KEY = os.path.join(REPO, "plugins", "remote-tabs", "bin", "send-key")
+SCRIPTS = os.path.join(REPO, "plugins", "remote-tabs", "scripts")
+if SCRIPTS not in sys.path:
+    sys.path.insert(0, SCRIPTS)
+
+from inbox_line import NO_ESC_MARK  # noqa: E402
+
 DRIVER = 'exec sh "$SENDKEY_SCRIPT" "$SENDKEY_LINE"\n'
 
 
@@ -54,15 +62,15 @@ class SendKeyMarkGuard(unittest.TestCase):
             return p.returncode, f.read(), p.stderr
 
     def test_pk1_marked_slash_line_refused(self):
-        rc, inbox, err = self.send_key("{no-esc}/resume")
+        rc, inbox, err = self.send_key(NO_ESC_MARK + "/resume")
         self.assertEqual((rc, inbox), (3, ""), err)
-        self.assertIn("{no-esc}", err)
+        self.assertIn(NO_ESC_MARK, err)
 
     def test_pk2_double_mark_refused(self):
         # 브리지는 표지를 «한 번» 뗀다 → 본문 `{no-esc}/x` 는 평문이 된다. 그래도 줄 머리 표지라 거부한다.
-        rc, inbox, err = self.send_key("{no-esc}{no-esc}/x")
+        rc, inbox, err = self.send_key(NO_ESC_MARK + NO_ESC_MARK + "/x")
         self.assertEqual((rc, inbox), (3, ""), err)
-        self.assertIn("{no-esc}", err)
+        self.assertIn(NO_ESC_MARK, err)
 
     def test_pk3_control_bare_guard_unchanged(self):
         rc, inbox, err = self.send_key("/resume")
@@ -71,8 +79,8 @@ class SendKeyMarkGuard(unittest.TestCase):
 
     def test_pk4_control_leading_space_is_plain(self):
         # 앞 공백 — 브리지가 표지로 안 본다(평문). 지금처럼 그대로 큐에 간다 · 중괄호가 글자 그대로 남는다.
-        rc, inbox, err = self.send_key(" {no-esc}/x")
-        self.assertEqual((rc, inbox), (0, " {no-esc}/x\n"), err)
+        rc, inbox, err = self.send_key(" " + NO_ESC_MARK + "/x")
+        self.assertEqual((rc, inbox), (0, " " + NO_ESC_MARK + "/x\n"), err)
 
 
 if __name__ == "__main__":
