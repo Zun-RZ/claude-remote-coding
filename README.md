@@ -145,6 +145,16 @@ When you open a session in a folder Claude Code hasn't opened before, the new ba
 | `open-remote-tab` | Start one background remote-control session for the current project |
 | `close-remote-tab` | End the current session (after one confirmation, or instantly with the `#@stop#@` keyword) — keeps zombie sessions from piling up |
 
+## Inbox lines (keystroke bridge)
+
+Each session has an inbox file (`$CLAUDE_BRIDGE_INBOX`); the bridge injects every newly completed line into the session as keystrokes.
+
+- One completed line (ending in `\n`) is one injection; the submit CR is sent separately.
+- A line starting with `/` or `!` is preceded by ESC (it closes an open modal so the command reaches the prompt) — that ESC also interrupts a running turn.
+- Since 1.7.0, a line starting with `{no-esc}` is injected without that ESC and the prefix is stripped (`{no-esc}/wake` → `/wake`). Use it when a turn may be running: Claude Code queues the command and runs it after the turn. Elsewhere in a line the prefix is plain text. Bridges before 1.7.0 type the prefix literally — check the version (the cache folder name) before using it.
+- Scope: Windows ConPTY host (`pty_host.py`) only — the tmux bridge (`bridge.sh`, Linux/macOS) does not know the prefix and submits it as literal text.
+- `send-key` does not take the prefix: a line starting with `{no-esc}` is refused (exit 3), so the prefix cannot carry a command such as `/resume` past its interactive-UI guard. Write the inbox file directly when you need the prefix.
+
 ## How it works
 
 `bin/open-remote-tab` and `bin/close-remote-tab` are single POSIX entry points exposed on the Bash tool's `PATH`. Each detects the OS via `uname`:

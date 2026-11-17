@@ -8,6 +8,8 @@
 # Mirrors the Windows pty_host.py: /-commands and !-bash get an ESC first (to close
 # any AskUserQuestion/permission/trust modal so the key lands at the command prompt);
 # plain prompts are injected as-is. Exits when the tmux session is gone.
+# Exception (1.7.0): unlike pty_host.py, this bridge does not know the {no-esc} line prefix —
+# such a line is not a /-command here and is typed literally (see README "Inbox lines").
 SESSION="${1:?usage: bridge.sh <session> <inbox>}"
 INBOX="${2:?usage: bridge.sh <session> <inbox>}"
 STATE="${INBOX}.offset"

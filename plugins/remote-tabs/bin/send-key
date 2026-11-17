@@ -37,6 +37,17 @@ fi
 
 line="$*"
 
+# Guard: refuse a line that starts with the {no-esc} prefix (1.7.0, README "Inbox
+# lines"). The Windows bridge strips it and types the rest without the leading ESC,
+# so "{no-esc}/resume" would pass the slash guard below and land as a stranding
+# /resume. Refuse instead of strip-and-recheck: the prefix is parsed in one place
+# (scripts/inbox_line.py). Callers that need the prefix write the inbox directly.
+case "$line" in
+  '{no-esc}'*)
+    echo "send-key: a line starting with '{no-esc}' is not accepted — send-key does not take the bridge prefix. Send the line without it." >&2
+    exit 3 ;;
+esac
+
 # Guard: refuse slash built-ins that would strand this one-shot bridge. We inject a
 # single line, so a command that then waits for more keyboard input (a picker/menu/
 # dialog) hangs the remote session. Everything else passes — plain prompts, !bash,

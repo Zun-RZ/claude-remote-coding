@@ -19,6 +19,8 @@ import time
 
 from winpty import Backend, PtyProcess
 
+from inbox_line import plan_injection
+
 POLL_INTERVAL = 1.0  # Windows엔 inotify가 없어 단순 폴링
 ESC_SETTLE = 0.4     # 슬래시/배시 명령 주입 전 ESC를 보내고 모달이 닫힐 시간을 준다
 PASTE_SETTLE = 0.1   # 본문(bracketed paste 포함)을 쓴 뒤 제출 CR을 따로 보내기 전 짧은 대기
@@ -86,22 +88,24 @@ def inject_new(proc, inbox, state):
         # 턴 끝의 AskUserQuestion·권한·폴더신뢰 모달이 떠 있으면 주입이 거기 갇히므로
         # ESC로 모달을 닫고 명령 프롬프트로 복귀시킨 뒤 주입한다.
         # ESC+명령을 한 락 구간으로 묶어 로컬 콘솔 입력과 인터리브되지 않게 한다.
+        # 줄 머리 `{no-esc}` 표지(1.7.0)는 떼고 그 ESC 를 생략한다 — ESC 가 도는 턴도 끊기 때문이다(inbox_line.py).
+        body, send_esc = plan_injection(line)
         with _write_lock:
-            if line.startswith(("/", "!")):
+            if send_esc:
                 proc.write("\x1b")
                 time.sleep(ESC_SETTLE)
-            if line.startswith("!"):
+            if body.startswith("!"):
                 # !ls를 생바이트로 쏘면 bash 모드(!) 진입이 안 잡힌다(실제 붙여넣기는 됨).
                 # 붙여넣기처럼 bracketed paste로 본문만 감싸고, 제출 CR은 페이스트 종료
                 # (\x1b[201~) 뒤에 따로 보낸다(브래킷 안의 CR은 개행으로 삽입돼 버린다).
-                proc.write("\x1b[200~" + line + "\x1b[201~")
+                proc.write("\x1b[200~" + body + "\x1b[201~")
                 time.sleep(PASTE_SETTLE)
                 proc.write("\r")
             else:
                 # 본문과 제출 CR을 한 번에 쓰면 긴 줄은 붙여넣기로 읽혀 CR이 제출이 아니라
                 # 개행이 된다 — 줄이 입력창에 남고 다음 주입이 거기 덧붙는다(실측: 143자
                 # /명령·147자 평문 미제출, 짧은 줄은 제출). 본문을 먼저 쓰고 CR은 따로 보낸다.
-                proc.write(line)
+                proc.write(body)
                 time.sleep(PASTE_SETTLE)
                 proc.write("\r")  # PTY는 줄 끝 CR
     write_offset(state, len(lines))
